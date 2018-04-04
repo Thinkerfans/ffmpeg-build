@@ -28,6 +28,10 @@ function build_ARMv7
   --sysroot=$PLATFORM \
   --enable-static \
   --disable-shared \
+  --disable-shared \
+  --disable-ffmpeg \
+  --disable-ffprobe \
+  --disable-ffserver \
   --extra-cflags="-DANDROID -fPIC -ffunction-sections -funwind-tables -fstack-protector -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=300" \
   --extra-ldflags="-Wl,-rpath-link=$PLATFORM/usr/lib -L$PLATFORM/usr/lib -nostdlib -lc -lm -ldl -llog" \
   --enable-zlib \

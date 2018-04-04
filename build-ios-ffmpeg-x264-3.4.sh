@@ -2,7 +2,11 @@
 #!/bin/sh
 
 # directories
-SOURCE="ffmpeg"
+FF_VERSION="3.4"
+if [[ $FFMPEG_VERSION != "" ]]; then
+  FF_VERSION=$FFMPEG_VERSION
+fi
+SOURCE="ffmpeg-$FF_VERSION"
 FAT="FFmpeg-iOS"
 
 SCRATCH="scratch"
@@ -10,10 +14,10 @@ SCRATCH="scratch"
 THIN=`pwd`/"thin"
 
 # absolute path to x264 library
-X264="/Users/apple/Documents/ffmpeg/x264”
+X264="/Users/cfans/Documents/ffmpeg/ffmpeg-3.2/x264-iOS"
 echo $X264
 
-#FDK_AAC=`pwd`/fdk-aac/fdk-aac-ios
+#FDK_AAC=`pwd`/../fdk-aac-build-script-for-iOS/fdk-aac-ios
 
 CONFIGURE_FLAGS="--enable-cross-compile --disable-debug --disable-programs \
                  --disable-doc --enable-pic"
@@ -62,7 +66,7 @@ then
 		if [ ! `which brew` ]
 		then
 			echo 'Homebrew not found. Trying to install...'
-			ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" \
+                        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" \
 				|| exit 1
 		fi
 		echo 'Trying to install Yasm...'
@@ -97,19 +101,19 @@ then
 		    PLATFORM="iPhoneSimulator"
 		    CFLAGS="$CFLAGS -mios-simulator-version-min=$DEPLOYMENT_TARGET"
 		else
-            PLATFORM="iPhoneOS"
+		    PLATFORM="iPhoneOS"
 		    CFLAGS="$CFLAGS -mios-version-min=$DEPLOYMENT_TARGET"
 		    if [ "$ARCH" = "arm64" ]
-		    then
-                CFLAGS="$CFLAGS -w -arch ${ARCH} -mfpu=neon"
-                CONFIGURE_FLAGS="$CONFIGURE_FLAGS --enable-asm --enable-neon"
-		        EXPORT="GASPP_FIX_XCODE5=1"
+            then
+            CFLAGS="$CFLAGS -w -arch ${ARCH} -mfpu=neon"
+            CONFIGURE_FLAGS="$CONFIGURE_FLAGS --enable-asm --enable-neon"
+            EXPORT="GASPP_FIX_XCODE5=1"
             else
-                CFLAGS="$CFLAGS -w -arch ${ARCH} -mfpu=neon"
-                CONFIGURE_FLAGS="$CONFIGURE_FLAGS --enable-asm --enable-neon --cpu=cortex-a9 --disable-armv5te"
-                EXPORT="GASPP_FIX_XCODE5=1"
+            CFLAGS="$CFLAGS -w -arch ${ARCH} -mfpu=neon"
+            CONFIGURE_FLAGS="$CONFIGURE_FLAGS --enable-asm --enable-neon --cpu=cortex-a9 --disable-armv5te"
+            EXPORT="GASPP_FIX_XCODE5=1"
 
-		    fi
+            fi
 		fi
 
 		XCRUN_SDK=`echo $PLATFORM | tr '[:upper:]' '[:lower:]'`
@@ -119,7 +123,6 @@ then
 		if [ "$X264" ]
 		then
 			CFLAGS="$CFLAGS -I$X264/include"
-            echo $CFLAGS
 			LDFLAGS="$LDFLAGS -L$X264/lib"
             echo $LDFLAGS
 		fi
@@ -135,7 +138,6 @@ then
 		    --cc="$CC" \
 		    $CONFIGURE_FLAGS \
 		    --extra-cflags="$CFLAGS" \
-		    --extra-cxxflags="$CXXFLAGS" \
 		    --extra-ldflags="$LDFLAGS" \
 		    --prefix="$THIN/$ARCH" \
 		|| exit 1
